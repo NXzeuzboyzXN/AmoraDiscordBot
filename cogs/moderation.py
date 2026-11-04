@@ -1,28 +1,44 @@
+
 import discord
 from discord.ext import commands
-import discord.app_commands
-import os
-from dotenv import load_dotenv
-from pathlib import Path
 
 
 class Moderation(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @discord.app_commands.command(name="kick", description="Expulsa um usuário do servidor.")
-    @discord.app_commands.describe(user="O usuário a ser expulso.", reason="Motivo da expulsão.")
-    async def kick(self, interaction: discord.Interaction, user: discord.Member, reason: str = None):
-        if not interaction.user.guild_permissions.kick_members:
-            await interaction.response.send_message("Você não tem permissão para expulsar membros.", ephemeral=True)
+    # Comando para testar se o Cog foi carregado
+    @commands.command(name="testecog")
+    async def testecog(self, ctx):
+        await ctx.reply("✅ Cog de moderação carregado com sucesso!")
+
+    # Comando para limpar mensagens
+    @commands.command(name="limpar", aliases=["clear"])
+    @commands.guild_only()
+    @commands.has_permissions(manage_messages=True)
+    @commands.bot_has_permissions(
+        manage_messages=True,
+        read_message_history=True
+    )
+    async def limpar(self, ctx, quantidade: int):
+        if quantidade < 1 or quantidade > 100:
+            await ctx.reply(
+                "Informe uma quantidade entre 1 e 100."
+            )
             return
 
-        try:
-            await user.kick(reason=reason)
-            await interaction.response.send_message(f"{user.mention} foi expulso do servidor.", ephemeral=True)
-        except Exception as e:
-            await interaction.response.send_message(f"Não foi possível expulsar {user.mention}. Erro: {e}", ephemeral=True)
+        apagadas = await ctx.channel.purge(
+            limit=quantidade + 1
+        )
+
+        total = max(0, len(apagadas) - 1)
+
+        await ctx.send(
+            f"🧹 {total} mensagens foram apagadas!",
+            delete_after=5
+        )
 
 
+# Função obrigatória para carregar a extensão
 async def setup(bot):
     await bot.add_cog(Moderation(bot))
