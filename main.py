@@ -1,20 +1,27 @@
+
 import os
+from pathlib import Path
+
 import discord
 from discord.ext import commands
 from dotenv import load_dotenv
-from pathlib import Path
 
-# Carrega o .env
+# Carrega as variáveis do arquivo .env
 env_path = Path(__file__).resolve().parent / ".env"
 load_dotenv(env_path)
 
 TOKEN = os.getenv("DISCORD_BOT_TOKEN")
 
+
 class MyBot(commands.Bot):
     def __init__(self):
         intents = discord.Intents.default()
-        intents.members = True  # Habilita a intenção de membros
-        super().__init__(command_prefix="!", intents=intents)
+        intents.members = True
+
+        super().__init__(
+            command_prefix="!",
+            intents=intents
+        )
 
     async def setup_hook(self):
         # Carrega os cogs
@@ -23,10 +30,14 @@ class MyBot(commands.Bot):
 
 bot = MyBot()
 
+
 @bot.event
 async def on_ready():
     print(f"Bot conectado como {bot.user}")
 
 
+if __name__ == "__main__":
+    if not TOKEN:
+        raise RuntimeError("Token DISCORD_BOT_TOKEN não encontrado!")
 
-bot.run(TOKEN)
+    bot.run(TOKEN)
