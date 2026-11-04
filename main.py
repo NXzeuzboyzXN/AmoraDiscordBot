@@ -1,12 +1,12 @@
 
 import os
-from pathlib import Path
-
 import discord
 from discord.ext import commands
 from dotenv import load_dotenv
+from pathlib import Path
 
-# Carrega as variáveis do arquivo .env
+# Carrega o .env localmente.
+# Na Vertra, também utiliza as variáveis de ambiente cadastradas.
 env_path = Path(__file__).resolve().parent / ".env"
 load_dotenv(env_path)
 
@@ -24,17 +24,13 @@ class MyBot(commands.Bot):
             intents=intents
         )
 
-    async def setup_hook(self):
-        # Carrega os cogs
-        await self.load_extension("cogs.moderation")
-
 
 bot = MyBot()
 
 
 @bot.event
 async def on_ready():
-    print(f"Bot conectado como {bot.user}")
+    print(f"Amora conectada como {bot.user}")
 
 
 if __name__ == "__main__":
